@@ -1,0 +1,94 @@
+{
+  "journey": {
+    "name": "pharmacy_lsa_notification",
+    "process_variables": [
+      {
+        "name": "customerName",
+        "type": "string",
+        "value": "Alice",
+        "comment": "Customer's name"
+      },
+      {
+        "name": "LSAPrescriptions",
+        "type": "string",
+        "value": "",
+        "comment": "Comma-separated list of prescriptions requiring LSA"
+      },
+      {
+        "name": "responseReceived",
+        "type": "boolean",
+        "value": "true",
+        "comment": "Flag indicating if the customer responded"
+      },
+      {
+        "name": "notificationCount",
+        "type": "integer",
+        "value": "0",
+        "comment": "Number of notifications sent"
+      }
+    ],
+    "flow": [
+      {
+        "name": "start",
+        "component": "start",
+        "next": "check_prescriptions"
+      },
+      {
+        "name": "check_prescriptions",
+        "type": "step",
+        "component": "check_prescriptions",
+        "next": "prescriptions_decision"
+      },
+      {
+        "name": "prescriptions_decision",
+        "type": "s_route",
+        "component": "prescriptions_decision",
+        "branches": [
+          { "name": "noLSA", "next": "end" },
+          { "name": "hasLSA", "next": "send_notification" }
+        ]
+      },
+      {
+        "name": "send_notification",
+        "type": "step",
+        "component": "send_notification",
+        "user_data": "LSA is required for: ${LSAPrescriptions}",
+        "next": "wait_response"
+      },
+      {
+        "name": "wait_response",
+        "type": "step",
+        "component": "wait_response",
+        "next": "response_decision"
+      },
+      {
+        "name": "response_decision",
+        "type": "s_route",
+        "component": "response_decision",
+        "branches": [
+          { "name": "responded", "next": "end" },
+          { "name": "notResponded", "next": "handle_no_response" }
+        ]
+      },
+      {
+        "name": "handle_no_response",
+        "type": "s_route",
+        "component": "handle_no_response",
+        "branches": [
+          { "name": "resend", "next": "send_notification" },
+          { "name": "timeout", "next": "throw_exception" }
+        ]
+      },
+      {
+        "name": "throw_exception",
+        "type": "step",
+        "component": "throw_exception",
+        "next": "end"
+      },
+      {
+        "name": "end",
+        "component": "end"
+      }
+    ]
+  }
+}

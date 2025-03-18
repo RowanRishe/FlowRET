@@ -59,13 +59,13 @@ Implementation thought process:
 
 
 
-- Context: In pharmacy, certain states require pharmacies to notify a customer when their LSA is about to expire for a certain perscription. We need to use this libary to complete the following worflow:
+- Context: In pharmacy, certain states require pharmacies to notify a customer when their SLA is about to expire for a certain perscription. We need to use this libary to complete the following worflow:
 
 - If a perscription is being filled complete the following: 
 
-- Check the database for the persons name and retrieve their list of perscriptions. If the perscription has the status of requiring an LSA, continue using those perscriptions in the rest of the workflow.
+- Check the database for the persons name and retrieve their list of perscriptions. If the perscription has the status of requiring an SLA, continue using those perscriptions in the rest of the workflow.
 
-- The user should receive a message regarding the status of each of their perscriptions that require an LSA, along with each individual LSA.
+- The user should receive a message regarding the status of each of their perscriptions that require an SLA, along with each individual SLA.
 
 - If the user doesn't interact with the message after a certain amount of days, we need to send another message. This can be quantified by whether they responds to the message.
 
@@ -85,7 +85,7 @@ Process starts and intitial audit logs were written
 
 CheckPrescriptionsStep found perscriptions ("Rx101", "Rx205")
 
-The PrescriptionsDecisionRoute determined that prescriptions requiring LSA exist, so it chose the "hasLSA" branch.
+The PrescriptionsDecisionRoute determined that prescriptions requiring SLA exist, so it chose the "hasSLA" branch.
 
 The SendNotificationStep executed 3 times, incrementing the count each time.
 
@@ -114,8 +114,8 @@ Flowchart:
 flowchart TD
     A[Start] --> B[Check Prescriptions]
     B --> C[Prescriptions Decision]
-    C -- "No LSA Required" --> X[End]
-    C -- "LSA Required" --> D[Send Notification]
+    C -- "No SLA Required" --> X[End]
+    C -- "SLA Required" --> D[Send Notification]
     D --> E[Wait for Response]
     E --> F[Response Decision]
     F -- "Customer Responded" --> X[End]
@@ -130,7 +130,7 @@ Process variables:
 
 - customerName
 
-- LSAPrescriptions: Initially empty; later set to a comma-seperated list of prescriptions that require LSA
+- SLAPrescriptions: Initially empty; later set to a comma-seperated list of prescriptions that require SLA
 
 - responseReceived: A boolean flag to indicate if the customer has responded
 
@@ -144,7 +144,7 @@ Individual files:
 
 StartStep.java: Prints a message to indicate the process has started.
 
-CheckPrescriptionsStep.java: Simulates checking a database for prescriptions that require LSA, using a hard coded string. It sets the LSAPrescriptions variable to a sample value.
+CheckPrescriptionsStep.java: Simulates checking a database for prescriptions that require SLA, using a hard coded string. It sets the SLAPrescriptions variable to a sample value.
 
 SendNotificationStep.java: Reads the prescriptions and the current notification count, increments the count, updates the variable, and prints the notification message.
 
@@ -154,11 +154,11 @@ Simulates a timeout scenario by printing an error message and resturning an erro
 
 Marks the end of the process by printing a message.
 
-PrescriptionsDecisionRoute.java: Reads the LSAPrescritions variable and chooses a branch:
-- If empty, it returns "noLSA".
-- If not, it returns "hasLSA".
+PrescriptionsDecisionRoute.java: Reads the SLAPrescritions variable and chooses a branch:
+- If empty, it returns "noSLA".
+- If not, it returns "hasSLA".
 
-Currently "hasLSA" is returned for any existing prescription
+Currently "hasSLA" is returned for any existing prescription
 
 ResponseDecisionRoute.java returns "responded" or "notResponded" depending on the assigned value for responseReceived in the json
 
@@ -169,9 +169,9 @@ PharmacyComponentFactory.java: Maps the component names and unit types from the 
 PharmacyWorkflowRunner.java: Initializes Flowret, clears the working directory, loads the JSON process definition, wires up the runtime service with the custom comps (DAO, Component Factory, Event Handler), starts the case, and resumes it until completion.
 
 
-The route checks the LSAPrescriptions variable to see if its empty. If isn't empty, it adds "hasLSA" to a list. That is used to create a RouteResponse which tells Flowret which branch to follow next: 
+The route checks the SLAPrescriptions variable to see if its empty. If isn't empty, it adds "hasSLA" to a list. That is used to create a RouteResponse which tells Flowret which branch to follow next: 
 
 "branches": [
-    { "name": "noLSA", "next": "end" },
-    { "name": "hasLSA", "next": "send_notification" }
+    { "name": "noSLA", "next": "end" },
+    { "name": "hasSLA", "next": "send_notification" }
 ]

@@ -16,15 +16,15 @@ public class PrescriptionsDecisionRoute implements InvokableRoute {
 
     @Override
     public RouteResponse executeRoute() {
-        // Retrieve LSAPrescriptions value using public getter.
-        String prescriptions = pc.getProcessVariables().getString("LSAPrescriptions");
+        // Retrieve the "SLAPrescriptions" variable
+        String prescriptions = pc.getProcessVariables().getString("SLAPrescriptions");
         List<String> branch = new ArrayList<>();
         if (prescriptions == null || prescriptions.isEmpty()) {
-            branch.add("noLSA");
-            System.out.println("No prescriptions require LSA.");
+            branch.add("noSLA");
+            System.out.println("No prescriptions require SLA.");
         } else {
-            branch.add("hasLSA");
-            System.out.println("Prescriptions requiring LSA found.");
+            branch.add("hasSLA");
+            System.out.println("Prescriptions requiring SLA found.");
         }
         return new RouteResponse(UnitResponseType.OK_PROCEED, branch, "");
     }

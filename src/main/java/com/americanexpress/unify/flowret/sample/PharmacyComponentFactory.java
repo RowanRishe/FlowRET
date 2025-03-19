@@ -1,15 +1,22 @@
 package com.americanexpress.unify.flowret.sample;
 
-import com.americanexpress.unify.flowret.ProcessComponentFactory;
-import com.americanexpress.unify.flowret.ProcessContext;
-import com.americanexpress.unify.flowret.UnitType;
+import com.americanexpress.unify.flowret.*;
+import com.americanexpress.unify.flowret.sample.*;
 
 public class PharmacyComponentFactory implements ProcessComponentFactory {
+
     @Override
     public Object getObject(ProcessContext pc) {
         String compName = pc.getCompName();
+        if (compName == null) {
+            throw new RuntimeException("Component name is null");
+        }
+        // Normalize for comparison.
+        String normalized = compName.toLowerCase();
         if (pc.getCompType() == UnitType.STEP) {
-            switch (compName) {
+            switch (normalized) {
+                case "start":
+                    return new StartStep(pc);
                 case "check_prescriptions":
                     return new CheckPrescriptionsStep(pc);
                 case "send_notification":
@@ -18,15 +25,14 @@ public class PharmacyComponentFactory implements ProcessComponentFactory {
                     return new WaitResponseStep(pc);
                 case "throw_exception":
                     return new ThrowExceptionStep(pc);
-                case "start":
-                    return new StartStep(pc);
                 case "end":
+                case "endstep":  // Accept both "end" and "endstep"
                     return new EndStep(pc);
                 default:
                     throw new RuntimeException("Unknown step component: " + compName);
             }
         } else if (pc.getCompType() == UnitType.S_ROUTE) {
-            switch (compName) {
+            switch (normalized) {
                 case "prescriptions_decision":
                     return new PrescriptionsDecisionRoute(pc);
                 case "response_decision":

@@ -1,9 +1,6 @@
 package com.americanexpress.unify.flowret.sample;
 
-import com.americanexpress.unify.flowret.InvokableRoute;
-import com.americanexpress.unify.flowret.ProcessContext;
-import com.americanexpress.unify.flowret.RouteResponse;
-import com.americanexpress.unify.flowret.UnitResponseType;
+import com.americanexpress.unify.flowret.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +13,6 @@ public class ResponseDecisionRoute implements InvokableRoute {
 
     @Override
     public RouteResponse executeRoute() {
-        // Retrieve the responseReceived flag using getBoolean().
         Boolean responded = pc.getProcessVariables().getBoolean("responseReceived");
         List<String> branch = new ArrayList<>();
         if (responded != null && responded) {
